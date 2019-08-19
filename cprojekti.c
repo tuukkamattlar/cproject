@@ -17,7 +17,7 @@ struct avatar {
 
 
 //create dynamic list for avatars
-struct avatar *listOfAvatars; 							//this will be reallocated at every new add case, even first
+struct avatar *listOfAvatars; 				//this will be reallocated at every new add case, even first
 
 //Also add index that tells us the maximum index we're running at
 int indexOfList=-1;
@@ -42,7 +42,7 @@ int resizeArr() {
 
  void listCommands() {
 	 printf("Use following commands to run the game: \n");
-	 printf("A - add player. This requires parameters name, hp, weapon and weaponPower^tm. \n");
+	 printf("A - add a player. This requires parameters name, hp, weapon and weaponPower^tm. \n");
 	 printf("H - attack! Attack another player by giving your name and another players name.\n");
 	 printf("L - list all players.\n");
 	 printf("W - write current game status into a file you name as parameter.\n");
@@ -68,7 +68,7 @@ int resizeArr() {
 	listOfAvatars[indexOfList].hp = fhp;
 	listOfAvatars[indexOfList].ep = 0;
 	listOfAvatars[indexOfList].weaponForce = fguneff;
-	int rann = rand() & 3;											//generate some random ints for different prints
+	int rann = rand() & 3;								//generate some random ints for different prints
 	printf("\nNew player %s succesfully added.\n", fname);
 		
 	//next just some fancy cases for randomly generated print. Also includes the instructions.	
