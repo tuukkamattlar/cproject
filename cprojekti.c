@@ -181,8 +181,29 @@ int resizeArr() {
  * W - save current players in a file called input
  */
  
- void saveFile( char *nimi) {
-	 printf("kys \n");	 //TODO
+ int saveFile( char *nimi) {
+
+	 FILE *f = fopen(nimi, "w");
+	 if(f != 0 && indexOfList != -1) {
+		 for(int i=0; i <=indexOfList; i++) {
+			 fprintf(f, "%s %d %s %d %d\n", 
+			 listOfAvatars[i].name, 
+			 listOfAvatars[i].ep, 
+			 listOfAvatars[i].weapon, 
+			 listOfAvatars[i].hp,
+			 listOfAvatars[i].weaponForce);
+		 }
+		 fclose(f);
+		 return 1;
+ } else if (indexOfList == -1) {
+	 printf("Hmm. There are no players. Creating a file now would be pretty useless.\n");
+	 return 0;
+ }
+	else {
+	 fprintf(f, "Whoops, the file was not succesfully processed.\n");
+	 fclose(f);
+	 return 0;
+	}
  }
  
 
@@ -254,7 +275,9 @@ char readCmd() {
 			
 		case 'W' :
 			scanf("%s", str1); //esim: W game
-			saveFile(str1); //TODO
+			if(saveFile(str1)) {
+				printf("Nice, the file %s has now been created.\n", str1);
+			}
 			break;
 			
 		case 'O' :
