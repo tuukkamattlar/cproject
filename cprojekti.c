@@ -27,7 +27,7 @@ int resizeArr() {
 	indexOfList++;
 	unsigned int a = indexOfList * sizeof(struct avatar);
 	unsigned int b = sizeof(struct avatar); 					//for new size of the alloc
-	unsigned int c = a + b;										// just making sure all fine here
+	unsigned int c = a + b;									// just making sure all fine here
 	listOfAvatars = realloc(listOfAvatars, c + 1 );				//realloc the thing
 	if(listOfAvatars != NULL && sizeof(listOfAvatars) != a) {	//handle realloc errors
 		return 1;
@@ -60,6 +60,11 @@ int resizeArr() {
  */
  int addPlayer(char *fname, int fhp, char *fgun, int fguneff) {
 
+	if (fhp <= 0) {
+		printf("Dead players can't be added!\n");
+		return 2;
+	} else {
+
 	if(resizeArr() == 1) {			//check if the realloc is sucecesfull
 	listOfAvatars[indexOfList].name = malloc(sizeof(char)*40); 		//malloc, space for input
 	listOfAvatars[indexOfList].weapon = malloc(sizeof(char)*40);	//same
@@ -68,36 +73,28 @@ int resizeArr() {
 	listOfAvatars[indexOfList].hp = fhp;
 	listOfAvatars[indexOfList].ep = 0;
 	listOfAvatars[indexOfList].weaponForce = fguneff;
-	int rann = rand() & 3;								//generate some random ints for different prints
+							//generate some random ints for different prints
 	printf("\nNew player %s succesfully added.\n", fname);
 		
 	//next just some fancy cases for randomly generated print. Also includes the instructions.	
 		
-		if (indexOfList == 0) 
-			{printf("%s is still a bit too safe because they has no fighting mates. \nPlease add them by creating another avatar.\n", fname);}
-		else if (indexOfList == 1) 
-			{printf("Cool! %s is now accompanied by %s.\n\nYou may now start doing more stuff! Here are the commands once more:\n\n", listOfAvatars[0].name, fname); listCommands();}  		
-		else if (rann == 1) 
-			{printf("%s is keen to start playing! Go ahead!\n", fname);}  
-		else if (rann == 2) 
-			{printf("%s has no experience yet.\nPlease help them by starting a fight. \n", fname);} 
-		else 
-			{printf("%s is however feeling a bit lonely. Please help them by starting a fight. \n", fname);}
-		
+
 		return 1; //finally telling all was fine
-	} else {
+	
+	} 
+	else {
 		printf("New player was not added, better luck next time\n");
 		return 0; //telling we didn't succeed
 	}
-	 
- }
+	} // major else end
+ } //function end
 
 //this is for the attacks
  
  void omgAttack(char *fattacker, char *fattacked) {
 	
-	int ate=0; //attacked index in our list
-	int atc=0; //attacker index in our list
+	int ate=-1; //attacker index in our list
+	int atc=-2; //attacked index in our list
 	 
 	 for(int i=0; i<=indexOfList; i++) {
 		 
@@ -109,25 +106,39 @@ int resizeArr() {
 	 
 	 if(ate == atc) 
 		{printf("You can't fight yourself, can you?\n");}
-	 else if(listOfAvatars[ate].hp == 0) 
-		{printf("%s is already dead. Cannot fight.\n", listOfAvatars[ate].name);}
-	 else if(listOfAvatars[atc].hp == 0) 
-		{printf("%s is already dead. Cannot fight.\n", listOfAvatars[atc].name);}
+	else if (ate == -1) {
+		printf("There's no such player as %s. Try again! \n", fattacker);
+	}
+	else if (atc == -2) {
+		printf("There's no such playes as %s. Try again!\n", fattacked);
+	}
+	 else if(listOfAvatars[ate].hp == 0) {
+		 printf("%s is already dead. Cannot fight.\n", listOfAvatars[ate].name);
+		 }
+	 else if(listOfAvatars[atc].hp == 0) {
+		 printf("%s is already dead. Cannot fight.\n", listOfAvatars[atc].name);
+		 }
 	 else {
-		 if(listOfAvatars[ate].ep < 95) 
-			{listOfAvatars[ate].ep =+5;}
+		 if(listOfAvatars[ate].ep < 95) {
+			 listOfAvatars[ate].ep = listOfAvatars[ate].ep + 5;
+			 }
 		 else 
 			{listOfAvatars[ate].ep=100; printf("Woah, %s just scored full EP. It's their time to move to pension.\n", listOfAvatars[ate].name);
 			}
+	 int wf = rand() & listOfAvatars[ate].weaponForce; //random force generated, max is the given stuff.
 	 
-	 listOfAvatars[atc].hp = listOfAvatars[atc].hp - listOfAvatars[ate].weaponForce; //update hp
+	 listOfAvatars[atc].hp = listOfAvatars[atc].hp - wf; //update hp
 	 
 	 if (listOfAvatars[atc].hp <= 0) { 
-		printf("Shit, %s just died. RIP.\n", listOfAvatars[atc].name);listOfAvatars[atc].hp =0;
+		printf("Shit, %s just died. RIP.\n", listOfAvatars[atc].name);
+		listOfAvatars[atc].hp =0; //this is the set min
+		printf("At least %s has now %d EP!\n", listOfAvatars[ate].name, listOfAvatars[ate].ep);
 		}
-	 else 
+	 else {
 		printf("Woah. That was bad, lucklily nobody died.\n");
-	 
+		printf("%s hit %s full blast causing %d HP units of damage..\n",listOfAvatars[ate].name, listOfAvatars[atc].name, wf );
+		printf("%s has now %d EP and %s's HP left is %d\n",listOfAvatars[ate].name, listOfAvatars[ate].ep, listOfAvatars[atc].name, listOfAvatars[atc].hp);
+	 } 
 	 }
  }
 	 
@@ -156,19 +167,29 @@ int resizeArr() {
 	while(t >= 0) {
 		
 		for(int i=0; i<= indexOfList; i++) {
-			if(t == listOfAvatars[i].ep){
-			printf("Name: %s. ", listOfAvatars[i].name);
-			printf("Fights with: %s ", listOfAvatars[i].weapon);
-			printf("that makes %d much of damage. ", listOfAvatars[i].weaponForce);
-			printf("\nEP: %d and ", listOfAvatars[i].ep);
+			if(t == listOfAvatars[i].ep && listOfAvatars[i].hp != 0){
+				
+			printf("%s ", listOfAvatars[i].name);
+			printf("fights with: %s", listOfAvatars[i].weapon);
+			printf(", harm: %d ", listOfAvatars[i].weaponForce);
+			printf("EP: %d and ", listOfAvatars[i].ep);
 			printf("HP left %d", listOfAvatars[i].hp);
-			if(listOfAvatars[i].hp == 0){printf("\nI'm afraid this means we've lost %s. RIP.\n\n", listOfAvatars[i].name );}
-			else {printf("\n\n");}
+			printf("\n");
 
 			}
 		}
 		
 		t--;
+	}
+	for(int i=0; i<= indexOfList; i++) {
+		if(listOfAvatars[i].hp == 0){
+			
+			printf("%s ", listOfAvatars[i].name);
+			printf("fighted with: %s", listOfAvatars[i].weapon);
+			printf(", harmed: %d ", listOfAvatars[i].weaponForce);
+			printf("EP: %d but is dead now. RIP.", listOfAvatars[i].ep);
+			printf("\n");
+		}
 	}
 	printf("\nCool, that's everyone\n");
 	 }
@@ -186,11 +207,11 @@ int resizeArr() {
 	 FILE *f = fopen(nimi, "w");
 	 if(f != 0 && indexOfList != -1) {
 		 for(int i=0; i <=indexOfList; i++) {
-			 fprintf(f, "%s %d %s %d %d\n", 
+			 fprintf(f, "%s %d %d %s %d\n", 
 			 listOfAvatars[i].name, 
 			 listOfAvatars[i].ep, 
-			 listOfAvatars[i].weapon, 
 			 listOfAvatars[i].hp,
+			 listOfAvatars[i].weapon, 
 			 listOfAvatars[i].weaponForce);
 		 }
 		 fclose(f);
@@ -207,31 +228,61 @@ int resizeArr() {
  }
  
 
- 
-  /**
- * O - load players from file called tiedosto.
- */
- 
- void loadFile( char *nimi) {
-	 printf("kys \n");	 //TODO
- }
- 
-
   /**
  * Q - quit program and free all memory
  */
  
  void clearAll() {
 
-	 printf("kys \n");
 	 
 	for(int i=0; i <= indexOfList; i++ )	{ 
 		free(listOfAvatars[i].name);
 		free(listOfAvatars[i].weapon);
 }
 		free(listOfAvatars);
+		indexOfList = -1;
  }
  
+
+
+ 
+  /**
+ * O - load players from file called tiedosto.
+ */
+ 
+ int loadFile( char *nimi) {
+	clearAll();
+	FILE *f = fopen(nimi, "r");
+	
+	if(f) {
+		char fname[40];
+		int fep;
+		int fhp;
+		char fweapon[40];
+		int fwf;
+		int count;
+		//that's the right order in the file
+		//there are 5 inputs thus;
+		while( (count = fscanf(f, "%s %d %d %s %d", 
+		fname, 
+		&fep, 
+		&fhp, 
+		fweapon, 
+		&fwf)) == 5 ) {
+			addPlayer(fname, fhp, fweapon, fwf);
+			listOfAvatars[indexOfList].ep = fep; //indexOfList is updated at each time!
+		} //end of while stuff
+		
+		
+		
+	} else {
+		printf("Uhm, the file could not be opened.\nU sure u gave the right file name?\n");
+		return 0;
+	}
+	
+ }
+ 
+
 
  
   /**
@@ -256,10 +307,31 @@ char readCmd() {
 		
 		case 'A' :
 			scanf("%s %d %s %d", str1, &int1, str2, &int2); // like  A Bilbo 25 Dagger 8
+			
 			if(addPlayer(str1, int1, str2, int2) !=1) {
+				
 				printf("Shit happens, better luck next time.\n"); 
+				
 				} 
-		break;
+			else {
+				int rann = rand() & 3;		
+					if (indexOfList == 0) {
+							printf("%s is still a bit too safe because they has no fighting mates. \nPlease add them by creating another avatar.\n\n", listOfAvatars[0].name);
+							}
+					else if (indexOfList == 1) {
+							printf("Cool! %s is now accompanied by %s.\n\nYou may now start doing more stuff! Here are the commands once more:\n\n", listOfAvatars[0].name, listOfAvatars[1].name); listCommands();
+							}  		
+					else if (rann == 1) {
+							printf("%s is keen to start playing! Go ahead!\n", listOfAvatars[indexOfList].name);
+							}  
+					else if (rann == 2) {
+							printf("%s has no experience yet.\nPlease help them by starting a fight. \n", listOfAvatars[indexOfList].name);
+							} 
+					else {
+							printf("%s is however feeling a bit lonely. Please help them by starting a fight. \n", listOfAvatars[indexOfList].name);
+					}
+				}
+			break;
 			
 		case 'H' :
 			scanf("%s %s", str1, str2); // H Bilbo Smaug
@@ -297,7 +369,7 @@ char readCmd() {
 			printf("Command %c is not defined. \n Please use the ones on the following list \n", cmd); 
 			//the case when given commang is not known
 			listCommands();
-			return 'N'; //for futher error print
+			return 'N'; //for futher error print, maybe
 			break;
 		}
 		return cmd;
@@ -309,12 +381,12 @@ char readCmd() {
 		printf("Happy to see you there.\n\n");
 		listCommands();
 		printf("I'd recommend you to create some players to start the mayhem with.\n");
-		printf("So go ahead and type A and then the parameters you wish, obvioustly following the rules.\n");
+		printf("So go ahead and type A and then the parameters you wish, obvioustly following the rules.\n\n");
 		char inp = 'Y';
 		while(inp != 'Q') {
 			inp = readCmd();
 		}
-		printf("kys, see ya\n");
+		printf("Cool and good, see ya!\n");
 		return 0;
 	}
 
