@@ -408,9 +408,12 @@ char readCmd() {
 			clearAll();
 			break;
 			
-		case '\n':
+		//case '\n':
 		case ' ':
 			break;	//because spaces and \n created problems in the past
+			
+		//case '\n':
+		//	printf("Hmm, we need inputs\n");
 			
 		default:
 			printf("Command %c is not defined. \n Please use the ones on the following list \n", cmd); 
